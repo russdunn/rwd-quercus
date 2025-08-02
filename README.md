@@ -193,6 +193,8 @@ const tree2 = new Treeview({
 | `nodeSelectionEnabled`         | `boolean`       | `true`           | If `true`, nodes can be selected. If `false`, node selection is disabled, and `onSelectionChange` will not be triggered by clicks on nodes or checkboxes.                                                                                                                                                  |
 | `cascadeSelectChildren`        | `boolean`       | `false`          | If `true` selecting a parent node will also select all of its children. If `multiSelectEnabled` is `false`, Clicking another node will deselect the previous group and select the new one along with its children. If `multiSelectEnabled` is `true` multiple selections are possible.                     |
 | `checkboxSelectionEnabled`     | `boolean`       | `false`          | If `true`, a checkbox will be displayed next to each node. When enabled, node selection is primarily controlled by interacting with these checkboxes. Clicking the node's text will not directly toggle selection.                                                                                         |
+| `showEmptyInformation`         | `boolean`       | `true`           | If `true` an information span is shown in the event of an empty data set or empty search result.
+| `emptyInformationStrings`      | `object`        | `{ noData: 'Error: No Data', search: 'No Result..' }` | Defines text for empty states. `noData` is shown when data set is empty, `search` is shown when a search has no results. If modified, requires both keys be set. |
 
 ---
 

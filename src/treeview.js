@@ -55,7 +55,12 @@
                 nodeSelectionEnabled: true,
                 cascadeSelectChildren: false,
                 checkboxSelectionEnabled: false,
-                nodeNameKey: 'name'
+                nodeNameKey: 'name',
+                showEmptyInformation: true,
+                emptyInformationStrings: {
+                    noData: 'Error: No Data',
+                    search: 'No Result..'
+                }
             };
             Object.assign(this.options, options);
 
@@ -65,6 +70,7 @@
             this.selectAllButton = null;
             this.expandAllButton = null;
             this.collapseAllButton = null;
+            this.informationSpan = null;
 
             this._initialize();
         }
@@ -84,6 +90,7 @@
             this.treeviewContainer.classList.add('custom-treeview-wrapper');
 
             this._createControls();
+            this._checkEmptyData();
             this._renderTree(this.options.data, this.treeviewContainer);
 
             if (this.options.initiallyExpanded) {
@@ -142,6 +149,55 @@
                 }
             }
             return descendants;
+        }
+
+        /**
+         * Checks if the data set is empty.
+         * 
+         * If empty:
+         * - Logs a console error with the current data.
+         * - Displays the options.emptyInformationStrings.noData string in the information span.
+         * 
+         * Skips execution if:
+         * - `showEmptyInformation` is false
+         * - `informationSpan` is not defined
+         */
+        _checkEmptyData() {
+            if (!this.options.showEmptyInformation || !this.informationSpan) return;
+
+            const isEmpty = this.options.data.length === 0;
+
+            if (isEmpty) {
+                console.error('Quercus.js: No data', this.options.data);
+                this.informationSpan.textContent = this.options.emptyInformationStrings.noData;
+            }
+
+            this.informationSpan.style.display = isEmpty ? 'block' : 'none';
+        }
+
+        /**
+         * Checks if a search operation returned no matches.
+         * 
+         * @param {number} matches - The number of matching search results.
+         * 
+         * If matches === 0:
+         * - Displays the options.emptyInformationStrings.search message in the information span.
+         * 
+         * Skips execution if:
+         * - `showEmptyInformation` is false
+         * - `informationSpan` is not defined
+         */
+        _checkEmptySearch(matches) {
+            if (!this.options.showEmptyInformation || !this.informationSpan) return;
+
+            const isEmpty = matches === 0;
+
+            if (isEmpty) {
+                this.informationSpan.textContent = this.options.emptyInformationStrings.search;
+            };
+
+            this.informationSpan.style.display = isEmpty ? 'block' : 'none';
+
         }
 
         // Method to create all control elements (search, buttons)
@@ -221,6 +277,12 @@
 
             if (buttonContainer.children.length > 0) {
                 this.treeviewContainer.appendChild(buttonContainer);
+            }
+
+            if (this.options.showEmptyInformation) {
+                this.informationSpan = document.createElement('span');
+                this.informationSpan.style.display = 'none';
+                this.treeviewContainer.appendChild(this.informationSpan);
             }
         }
 
@@ -630,6 +692,7 @@
 
             if (searchTerm === '') {
                 // When search is cleared, restore nodes to their initial expanded/collapsed state
+                this._checkEmptySearch(this.options.data.length);
                 allListItems.forEach(item => {
                     item.classList.remove('hidden', 'highlight'); // Remove search-related classes
 
@@ -686,6 +749,8 @@
                 }
             });
 
+            this._checkEmptySearch(matchingNodes.size);
+
             matchingNodes.forEach(node => {
                 node.classList.remove('hidden');
                 let current = node;
@@ -713,6 +778,7 @@
             this.treeviewContainer.innerHTML = '';
             this.selectedNodes.clear();
             this._createControls(); // Re-create search bar and buttons
+            this._checkEmptyData(); // Check for an empty data set
             this._renderTree(this.options.data, this.treeviewContainer);
 
             if (this.options.initiallyExpanded) {
